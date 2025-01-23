@@ -1,0 +1,31 @@
+<article class='box'>
+  <h3 class='has-text-centered'>
+    Authorize Access
+  </h3>
+  <form>
+    <div class='block'>
+      <p>
+        <strong>{{client}}</strong>
+        wants to access the following resource&lpar;s&rpar; on your
+        behalf&colon;
+      </p>
+      <ul>
+        {{#each scopes}}
+          <li>{{description}}</li>
+        {{/each}}
+      </ul>
+    </div>
+    <div class='field is-grouped is-justify-content-space-evenly'>
+      <div class='control'>
+        <button type='submit' class='button is-rounded is-primary'>
+          Approve
+        </button>
+      </div>
+      <div class='control'>
+        <button type='button' class='button is-rounded is-danger'>
+          Reject
+        </button>
+      </div>
+    </div>
+  </form>
+</article>

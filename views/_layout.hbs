@@ -1,0 +1,47 @@
+<html lang='en'>
+  <head>
+    <meta charset='UTF-8' />
+    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+    <link rel='preconnect' href='https://fonts.googleapis.com' />
+    <link rel='preconnect' href='https://fonts.gstatic.com' crossorigin />
+    <link
+      rel='stylesheet'
+      href='https://fonts.googleapis.com/css2?family=Dosis:wght@200..800&display=swap'
+    />
+    <link
+      rel='stylesheet'
+      href='https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css'
+    />
+    <style>
+      body { font-family: 'Dosis', sans-serif; }
+    </style>
+    <title>{{app}}</title>
+    <script
+      src='https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js'
+      defer
+    ></script>
+  </head>
+  <body class='container is-flex is-flex-direction-column' style='height:100vh'>
+    <header class='has-text-centered'>
+      <h1 class='title'>Control</h1>
+      <h2 class='subtitle'>&lpar;An oAuth2 Server&rpar;</h2>
+    </header>
+    <main class='content is-flex-grow-1 p-6'>
+      <section class='columns is-centered'>
+        <div
+          class='column is-three-quarters-tablet is-two-thirds-desktop is-half-widescreen is-one-third-fullhd'
+        >
+          {{{body}}}
+        </div>
+      </section>
+    </main>
+    <footer class='footer'>
+      <article class='content has-text-centered'>
+        <p>
+          Copyright &copy; 2025
+          <a href='https://www.msrumon.com'>Rumon</a>
+        </p>
+      </article>
+    </footer>
+  </body>
+</html>
