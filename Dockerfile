@@ -23,4 +23,4 @@ USER node
 
 EXPOSE 2875
 
-CMD ["node", "index.js"]
+CMD ["node", "app.js"]
