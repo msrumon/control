@@ -1,0 +1,32 @@
+{
+  "name": "control",
+  "version": "0.0.0",
+  "description": "Control - An oAuth2 Server",
+  "keywords": [
+    "control",
+    "control oauth2",
+    "control oauth2 server",
+    "oauth2",
+    "oauth2 server"
+  ],
+  "author": {
+    "name": "Rumon",
+    "email": "contact@msrumon.com",
+    "url": "https://www.msrumon.com"
+  },
+  "license": "MIT",
+  "scripts": {
+    "dev": "tsx watch --include src/**/* src/app.ts",
+    "build": "tsc",
+    "start": "node dist/app.js"
+  },
+  "dependencies": {
+    "fastify": "^5.2.1"
+  },
+  "devDependencies": {
+    "@tsconfig/node-lts": "^22.0.1",
+    "@types/node": "^22.10.8",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  }
+}
