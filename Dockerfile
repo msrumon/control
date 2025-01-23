@@ -10,14 +10,15 @@ COPY . .
 
 RUN npm run build
 
-FROM build
+FROM node:lts-alpine
 
 ENV NODE_ENV=production
 
 WORKDIR /home/node
 
-COPY --from=build /root/node_modules ./node_modules
-COPY --from=build /root/dist .
+COPY --from=build --chown=node:node /root/node_modules ./node_modules
+COPY --from=build --chown=node:node /root/views ./views
+COPY --from=build --chown=node:node /root/dist .
 
 USER node
 
