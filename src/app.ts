@@ -1,14 +1,43 @@
+import fastifyCookie from '@fastify/cookie';
+import fastifyCors from '@fastify/cors';
+import fastifyEnv from '@fastify/env';
+import fastifySession from '@fastify/session';
 import fastifyView from '@fastify/view';
 
+import { ConnectSessionKnexStore } from 'connect-session-knex';
 import Fastify from 'fastify';
 import handlebars from 'handlebars';
 
+import { knexPlugin } from './plugins';
 import { statefulRoutes, statelessRoutes } from './routes';
 
 const fastify = Fastify({ logger: true });
 
 async function run() {
   try {
+    await fastify.register(fastifyEnv, {
+      schema: {
+        type: 'object',
+        properties: {
+          COOKIE_SECRET: { type: 'string' },
+          SESSION_SECRET: { type: 'string', minLength: 32 },
+          DATABASE_URL: { type: 'string' },
+        },
+        required: ['COOKIE_SECRET', 'SESSION_SECRET', 'DATABASE_URL'],
+      },
+    });
+    await fastify.register(knexPlugin, {
+      client: 'pg',
+      connection: process.env.DATABASE_URL,
+    });
+    await fastify.register(fastifyCookie, {
+      secret: process.env.COOKIE_SECRET!,
+    });
+    await fastify.register(fastifySession, {
+      secret: process.env.SESSION_SECRET!,
+      store: new ConnectSessionKnexStore({ knex: fastify.knex }),
+    });
+    await fastify.register(fastifyCors);
     await fastify.register(fastifyView, {
       engine: { handlebars },
       defaultContext: { app: 'Control' },
@@ -19,7 +48,7 @@ async function run() {
     // TODO: Delete later.
     await fastify.register(async (_fastify) => {
       _fastify.get('/authenticate', async (_request, _reply) => {
-        return await _reply.viewAsync('authenticate');
+        return await _reply.viewAsync('signin');
       });
       _fastify.get('/consent', async (_request, _reply) => {
         return await _reply.viewAsync('consent', {

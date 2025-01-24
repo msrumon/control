@@ -1,15 +1,29 @@
 services:
   app:
+    depends_on:
+      - database
     image: node:lts-alpine
     working_dir: /root
     volumes:
       - .:/root
+    environment:
+      COOKIE_SECRET: abcdefghijklmnopqrstuvwxyz0123456789
+      SESSION_SECRET: abcdefghijklmnopqrstuvwxyz0123456789
+      DATABASE_URL: postgres://root:r00t@database:5432/control
     ports:
       - 2875:2875
     command:
       - npm
       - run
       - dev
+  database:
+    image: postgres:alpine
+    volumes:
+      - db:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: r00t
+      POSTGRES_DB: control
   npm:
     image: node:lts-alpine
     working_dir: /root
@@ -17,3 +31,5 @@ services:
       - .:/root
     entrypoint:
       - npm
+volumes:
+  db: ~
