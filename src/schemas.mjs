@@ -1,6 +1,7 @@
-import type { FastifySchema } from 'fastify';
-
-export const getAuthorizeSchema: FastifySchema = {
+/**
+ * @type {import('fastify').FastifySchema}
+ */
+export const getAuthorizeSchema = {
   querystring: {
     type: 'object',
     properties: {

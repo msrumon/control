@@ -8,8 +8,9 @@ import { ConnectSessionKnexStore } from 'connect-session-knex';
 import Fastify from 'fastify';
 import handlebars from 'handlebars';
 
-import { knexPlugin } from './plugins';
-import { statefulRoutes, statelessRoutes } from './routes';
+import knexConfig from '../knexfile.js';
+import { argon2Plugin, knexPlugin } from './plugins.mjs';
+import { statefulRoutes, statelessRoutes } from './routes.mjs';
 
 const fastify = Fastify({ logger: true });
 
@@ -19,22 +20,20 @@ async function run() {
       schema: {
         type: 'object',
         properties: {
+          DATABASE_URL: { type: 'string' },
           COOKIE_SECRET: { type: 'string' },
           SESSION_SECRET: { type: 'string', minLength: 32 },
-          DATABASE_URL: { type: 'string' },
         },
-        required: ['COOKIE_SECRET', 'SESSION_SECRET', 'DATABASE_URL'],
+        required: ['DATABASE_URL', 'COOKIE_SECRET', 'SESSION_SECRET'],
       },
     });
-    await fastify.register(knexPlugin, {
-      client: 'pg',
-      connection: process.env.DATABASE_URL,
-    });
+    await fastify.register(argon2Plugin);
+    await fastify.register(knexPlugin, knexConfig);
     await fastify.register(fastifyCookie, {
-      secret: process.env.COOKIE_SECRET!,
+      secret: process.env.COOKIE_SECRET,
     });
     await fastify.register(fastifySession, {
-      secret: process.env.SESSION_SECRET!,
+      secret: process.env.SESSION_SECRET,
       store: new ConnectSessionKnexStore({ knex: fastify.knex }),
     });
     await fastify.register(fastifyCors);
