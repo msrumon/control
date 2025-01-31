@@ -2,13 +2,14 @@
   <h3 class='has-text-centered'>
     Authenticate Yourself
   </h3>
-  <form>
+  <form method='post'>
     <div class='field'>
       <label for='username' class='label'>Username</label>
       <div class='control'>
         <input
           type='text'
           id='username'
+          name='username'
           class='input'
           placeholder='Username'
           autocomplete='username'
@@ -22,6 +23,7 @@
         <input
           type='password'
           id='password'
+          name='password'
           class='input'
           placeholder='Password'
           autocomplete='current-password'
@@ -30,7 +32,12 @@
     </div>
     <div class='field'>
       <div class='control'>
-        <button type='submit' class='button is-rounded is-primary'>
+        <button
+          type='submit'
+          class='button is-rounded is-primary'
+          name='_csrf'
+          value='{{_csrf}}'
+        >
           Sign In
         </button>
       </div>

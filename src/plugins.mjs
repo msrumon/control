@@ -5,7 +5,7 @@ import knex from 'knex';
 /**
  * @type {import('fastify').FastifyPluginAsync<import('knex').Config>}
  */
-export const knexPlugin = fastifyPlugin(async (fastify, options) => {
+export const knexPlugin = fastifyPlugin(async function (fastify, options) {
   const instance = knex(options);
   fastify.decorate('knex', instance).addHook('onClose', async (_fastify) => {
     if (_fastify.knex === instance) {
@@ -17,6 +17,6 @@ export const knexPlugin = fastifyPlugin(async (fastify, options) => {
 /**
  * @type {import('fastify').FastifyPluginAsync}
  */
-export const argon2Plugin = fastifyPlugin(async (fastify) => {
+export const argon2Plugin = fastifyPlugin(async function (fastify) {
   fastify.decorate('argon2', { hash, needsRehash, verify });
 });

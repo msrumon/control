@@ -1,6 +1,9 @@
 import fastifyCookie from '@fastify/cookie';
 import fastifyCors from '@fastify/cors';
+import fastifyCsrfProtection from '@fastify/csrf-protection';
 import fastifyEnv from '@fastify/env';
+import fastifyFormbody from '@fastify/formbody';
+import fastifySensible from '@fastify/sensible';
 import fastifySession from '@fastify/session';
 import fastifyView from '@fastify/view';
 
@@ -27,37 +30,25 @@ async function run() {
         required: ['DATABASE_URL', 'COOKIE_SECRET', 'SESSION_SECRET'],
       },
     });
-    await fastify.register(argon2Plugin);
+    await fastify.register(fastifySensible);
+    await fastify.register(fastifyFormbody);
     await fastify.register(knexPlugin, knexConfig);
+    await fastify.register(argon2Plugin);
     await fastify.register(fastifyCookie, {
       secret: process.env.COOKIE_SECRET,
     });
     await fastify.register(fastifySession, {
       secret: process.env.SESSION_SECRET,
+      cookie: { httpOnly: true, secure: 'auto' },
       store: new ConnectSessionKnexStore({ knex: fastify.knex }),
     });
+    await fastify.register(fastifyCsrfProtection);
     await fastify.register(fastifyCors);
     await fastify.register(fastifyView, {
       engine: { handlebars },
       defaultContext: { app: 'Control' },
       root: 'views',
       layout: '_layout.hbs',
-    });
-
-    // TODO: Delete later.
-    await fastify.register(async (_fastify) => {
-      _fastify.get('/authenticate', async (_request, _reply) => {
-        return await _reply.viewAsync('signin');
-      });
-      _fastify.get('/consent', async (_request, _reply) => {
-        return await _reply.viewAsync('consent', {
-          client: 'Test Client',
-          scopes: [
-            { name: 'email', description: 'Access to your email' },
-            { name: 'profile', description: 'Access to your profile' },
-          ],
-        });
-      });
     });
 
     await fastify.register(statefulRoutes);
