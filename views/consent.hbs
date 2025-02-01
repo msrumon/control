@@ -2,27 +2,40 @@
   <h3 class='has-text-centered'>
     Authorize Access
   </h3>
-  <form>
-    <div class='block'>
-      <p>
-        <strong>{{client}}</strong>
-        wants to access the following resource&lpar;s&rpar; on your
+  <div class='block'>
+    <p>
+      <strong>{{client.name}}</strong>
+      <span>
+        &nbsp;wants to access the following resource&lpar;s&rpar; on your
         behalf&colon;
-      </p>
-      <ul>
-        {{#each scopes}}
-          <li>{{description}}</li>
-        {{/each}}
-      </ul>
-    </div>
+      </span>
+    </p>
+    <ul>
+      {{#each scopes}}
+        <li>{{description}}</li>
+      {{/each}}
+    </ul>
+  </div>
+  <form method='post'>
+    <input type='hidden' name='_csrf' value='{{_csrf}}' />
     <div class='field is-grouped is-justify-content-space-evenly'>
       <div class='control'>
-        <button type='submit' class='button is-rounded is-primary'>
+        <button
+          type='submit'
+          name='consent'
+          value='true'
+          class='button is-rounded is-primary'
+        >
           Approve
         </button>
       </div>
       <div class='control'>
-        <button type='button' class='button is-rounded is-danger'>
+        <button
+          type='submit'
+          name='consent'
+          value='false'
+          class='button is-rounded is-danger'
+        >
           Reject
         </button>
       </div>

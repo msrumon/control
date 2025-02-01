@@ -1,1 +1,1 @@
-GET http://127.0.0.1:2875/authorize?response_type=code&client_id=testclient&redirect_uri=http://127.0.0.1:2875/callback&scope=openid
+GET http://127.0.0.1:2875/authorize?response_type=code&client_id=a1b2c3d4-e5f6-4001-abcd-a1b2c3d4e5f6&redirect_uri=http%3A%2F%2F127.0.0.1%3A2875%2Fcallback&scope=openid%20email

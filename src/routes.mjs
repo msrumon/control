@@ -1,6 +1,7 @@
 import {
   getAuthorizeHandler,
   getSigninHandler,
+  handleAuth,
   postAuthorizeHandler,
   postSigninHandler,
 } from './handlers.mjs';
@@ -38,13 +39,13 @@ export async function statefulRoutes(fastify) {
 
   fastify.get(
     '/authorize',
-    { schema: getAuthorizeSchema, validatorCompiler },
+    { schema: getAuthorizeSchema, validatorCompiler, preHandler: handleAuth },
     getAuthorizeHandler
   );
 
   fastify.post(
     '/authorize',
-    { schema: postAuthorizeSchema, validatorCompiler },
+    { schema: postAuthorizeSchema, validatorCompiler, preHandler: handleAuth },
     postAuthorizeHandler
   );
 }

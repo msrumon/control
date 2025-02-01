@@ -7,11 +7,13 @@ import knex from 'knex';
  */
 export const knexPlugin = fastifyPlugin(async function (fastify, options) {
   const instance = knex(options);
-  fastify.decorate('knex', instance).addHook('onClose', async (_fastify) => {
-    if (_fastify.knex === instance) {
-      await _fastify.knex.destroy();
-    }
-  });
+  fastify
+    .decorate('knex', instance)
+    .addHook('onClose', async function (_fastify) {
+      if (_fastify.knex === instance) {
+        await _fastify.knex.destroy();
+      }
+    });
 });
 
 /**

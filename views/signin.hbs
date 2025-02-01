@@ -1,4 +1,7 @@
 <article class='box'>
+  {{#if error}}
+    <p class='notification is-danger'>{{error}}</p>
+  {{/if}}
   <h3 class='has-text-centered'>
     Authenticate Yourself
   </h3>
@@ -11,7 +14,7 @@
           id='username'
           name='username'
           class='input'
-          placeholder='Username'
+          placeholder='"bendover"'
           autocomplete='username'
           autofocus
         />
@@ -25,7 +28,7 @@
           id='password'
           name='password'
           class='input'
-          placeholder='Password'
+          placeholder='"bendover"'
           autocomplete='current-password'
         />
       </div>

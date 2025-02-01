@@ -2,11 +2,11 @@
  * @param {import('knex').Knex} knex
  */
 exports.up = async function ({ schema, fn }) {
-  await schema.createTable('users', function (table) {
+  await schema.createTable('scopes', function (table) {
     table.uuid('id').primary().defaultTo(fn.uuid());
-    table.string('username').notNullable().unique();
-    table.string('email').notNullable().unique();
-    table.string('password').notNullable();
+    table.string('name').notNullable();
+    table.string('description').notNullable();
+    table.boolean('is_consent_requried').notNullable();
     table.timestamps(true, true);
   });
 };
@@ -15,5 +15,5 @@ exports.up = async function ({ schema, fn }) {
  * @param {import('knex').Knex} knex
  */
 exports.down = async function ({ schema }) {
-  await schema.dropTable('users');
+  await schema.dropTable('scopes');
 };
