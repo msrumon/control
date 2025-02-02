@@ -14,12 +14,18 @@ import handlebars from 'handlebars';
 import htmlMinifier from 'html-minifier-terser';
 
 import knexConfig from '../knexfile.js';
-import { argon2Plugin, knexPlugin } from './plugins.mjs';
+import { argon2Plugin, authPlugin, knexPlugin } from './plugins.mjs';
 import { statefulRoutes, statelessRoutes } from './routes.mjs';
 
 const fastify = Fastify({ logger: true });
 
 async function run() {
+  fastify.setValidatorCompiler(function ({ schema }) {
+    return async function (input) {
+      return await schema.validateAsync(input, { context: { fastify } });
+    };
+  });
+
   try {
     await fastify.register(fastifyEnv, {
       schema: {
@@ -67,6 +73,7 @@ async function run() {
         },
       },
     });
+    await fastify.register(authPlugin);
 
     await fastify.register(statefulRoutes);
     await fastify.register(statelessRoutes);

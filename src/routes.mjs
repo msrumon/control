@@ -11,7 +11,6 @@ import {
   postAuthorizeSchema,
   postSigninSchema,
 } from './schemas.mjs';
-import { validatorCompiler } from './utils.mjs';
 
 /**
  * @type {import('fastify').FastifyPluginAsync}
@@ -21,17 +20,13 @@ export async function statefulRoutes(fastify) {
 
   // fastify.post('/signup');
 
-  fastify.get(
-    '/signin',
-    { schema: getSigninSchema, validatorCompiler },
-    getSigninHandler
-  );
+  fastify.get('/signin', { schema: getSigninSchema }, getSigninHandler);
 
   fastify.post(
     '/signin',
     {
       schema: postSigninSchema,
-      validatorCompiler,
+
       preHandler: fastify.csrfProtection,
     },
     postSigninHandler
@@ -39,13 +34,13 @@ export async function statefulRoutes(fastify) {
 
   fastify.get(
     '/authorize',
-    { schema: getAuthorizeSchema, validatorCompiler, preHandler: handleAuth },
+    { schema: getAuthorizeSchema, preHandler: handleAuth },
     getAuthorizeHandler
   );
 
   fastify.post(
     '/authorize',
-    { schema: postAuthorizeSchema, validatorCompiler, preHandler: handleAuth },
+    { schema: postAuthorizeSchema, preHandler: handleAuth },
     postAuthorizeHandler
   );
 }

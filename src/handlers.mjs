@@ -1,5 +1,3 @@
-import { randomBytes } from 'node:crypto';
-
 /**
  * @type {import('fastify').preHandlerAsyncHookHandler}
  */
@@ -22,15 +20,18 @@ export async function handleAuth(request, reply) {
     .where('id', clientId)
     .first();
   if (!client) {
-    return await reply.notFound('No client found!');
+    return await reply.notFound('Client not found.');
   }
 
   const uri = await request.server
     .knex('uris')
     .where('client_id', client.id)
     .first();
+  if (!uri) {
+    return await reply.notFound('URI not found.');
+  }
   if (uri.link !== decodeURIComponent(redirectUri)) {
-    return await reply.badRequest('URI mismatched!');
+    return await reply.badRequest('URI mismatched.');
   }
 
   request.client = client;
@@ -106,15 +107,32 @@ export async function getAuthorizeHandler(request, reply) {
 
   const url = new URL(request.uri.link);
 
-  switch (responseType) {
-    case 'code':
-      // TODO: Generate a random "code" and store it in the database.
-      const code = randomBytes(32).toString('hex');
+  for (const type of responseType.split(' ')) {
+    if (type === 'token') {
+      const { token, time } = await request.server.auth.generateAccessToken();
+      url.searchParams.set('access_token', token);
+      url.searchParams.set('token_type', 'Bearer');
+      url.searchParams.set('expires_in', (time - new Date()) / 1000);
+    }
+
+    if (type === 'id_token') {
+      const { token } = await request.server.auth.generateIdToken();
+      url.searchParams.set('id_token', token);
+    }
+
+    if (type === 'code') {
+      const { code } = await request.server.auth.generateCode(
+        request.client,
+        request.uri,
+        request.scopes,
+        state
+      );
       url.searchParams.set('code', code);
-      if (state) {
-        url.searchParams.set('state', state);
-      }
-      break;
+    }
+  }
+
+  if (state) {
+    url.searchParams.set('state', state);
   }
 
   return await reply.redirect(url);
@@ -124,22 +142,50 @@ export async function getAuthorizeHandler(request, reply) {
  * @type {import('fastify').RouteHandlerMethod}
  */
 export async function postAuthorizeHandler(request, reply) {
-  // TODO
-  return await reply.notImplemented();
-
   const { response_type: responseType, state } = request.query;
+  const { consent } = request.body;
 
   const url = new URL(request.uri.link);
 
-  switch (responseType) {
-    case 'code':
-      // TODO: Generate a random "code" and store it in the database.
-      const code = randomBytes(32).toString('hex');
-      url.searchParams.set('code', code);
-      if (state) {
-        url.searchParams.set('state', state);
+  switch (consent) {
+    case 'no':
+      url.searchParams.set('error', 'reject');
+      url.searchParams.set(
+        'error_description',
+        'User rejected authorizing access to the resource(s).'
+      );
+      break;
+    case 'yes':
+      for (const type of responseType.split(' ')) {
+        if (type === 'token') {
+          const { token, time } =
+            await request.server.auth.generateAccessToken();
+          url.searchParams.set('access_token', token);
+          url.searchParams.set('token_type', 'Bearer');
+          url.searchParams.set('expires_in', (time - new Date()) / 1000);
+        }
+
+        if (type === 'id_token') {
+          const { token } = await request.server.auth.generateIdToken();
+          url.searchParams.set('id_token', token);
+        }
+
+        if (type === 'code') {
+          const { code } = await request.server.auth.generateCode(
+            request.client,
+            request.uri,
+            request.scopes,
+            state
+          );
+          url.searchParams.set('code', code);
+        }
       }
       break;
+    default:
+  }
+
+  if (state) {
+    url.searchParams.set('state', state);
   }
 
   return await reply.redirect(url);
