@@ -24,11 +24,7 @@ export async function statefulRoutes(fastify) {
 
   fastify.post(
     '/signin',
-    {
-      schema: postSigninSchema,
-
-      preHandler: fastify.csrfProtection,
-    },
+    { schema: postSigninSchema, preHandler: fastify.csrfProtection },
     postSigninHandler
   );
 
@@ -49,10 +45,26 @@ export async function statefulRoutes(fastify) {
  * @type {import('fastify').FastifyPluginAsync}
  */
 export async function statelessRoutes(fastify) {
-  // fastify.post('/token');
+  fastify.post('/token', async function () {});
+
   // fastify.get('/userinfo');
+
   // fastify.post('/introspect');
+
   // fastify.post('/revoke');
+
   // fastify.get('/jwks');
+
   // fastify.get('/.well-known/openid-configuration');
+}
+
+/**
+ * ! Sample Route(s) for Clients
+ *
+ * @type {import('fastify').FastifyPluginAsync}
+ */
+export async function clientRoutes(fastify) {
+  fastify.get('/callback', async function (request, reply) {
+    return await reply.send(request.query);
+  });
 }

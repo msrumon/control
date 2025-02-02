@@ -15,7 +15,7 @@ import htmlMinifier from 'html-minifier-terser';
 
 import knexConfig from '../knexfile.js';
 import { argon2Plugin, authPlugin, knexPlugin } from './plugins.mjs';
-import { statefulRoutes, statelessRoutes } from './routes.mjs';
+import { clientRoutes, statefulRoutes, statelessRoutes } from './routes.mjs';
 
 const fastify = Fastify({ logger: true });
 
@@ -24,6 +24,12 @@ async function run() {
     return async function (input) {
       return await schema.validateAsync(input, { context: { fastify } });
     };
+  });
+
+  fastify.setErrorHandler(async function (error, _request, reply) {
+    fastify.log.warn(error);
+    const { message, name, statusCode } = error;
+    return await reply.code(statusCode).viewAsync('error', { message, name });
   });
 
   try {
@@ -78,13 +84,7 @@ async function run() {
     await fastify.register(statefulRoutes);
     await fastify.register(statelessRoutes);
 
-    // TODO: Delete later.
-    await fastify.register(async function (_fastify) {
-      _fastify.get('/callback', async function (_request, _reply) {
-        return await _reply.send(_request.query);
-      });
-    });
-    // TODO: Delete later.
+    await fastify.register(clientRoutes);
 
     await fastify.ready();
     await fastify.listen({ port: 2875, host: '0.0.0.0' });
