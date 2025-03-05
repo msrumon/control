@@ -1,7 +1,6 @@
-/**
- * @param {import('knex').Knex} knex
- */
-exports.seed = async function (knex) {
+import type { Knex } from 'knex';
+
+export async function seed(knex: Knex) {
   await knex('uris')
     .insert([
       {
@@ -12,4 +11,4 @@ exports.seed = async function (knex) {
     ])
     .onConflict('id')
     .ignore();
-};
+}

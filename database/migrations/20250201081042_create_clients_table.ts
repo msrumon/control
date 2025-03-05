@@ -1,7 +1,6 @@
-/**
- * @param {import('knex').Knex} knex
- */
-exports.up = async function ({ schema, fn }) {
+import type { Knex } from 'knex';
+
+export async function up({ schema, fn }: Knex) {
   await schema.createTable('clients', function (table) {
     table.uuid('id').primary().defaultTo(fn.uuid());
     table
@@ -12,13 +11,11 @@ exports.up = async function ({ schema, fn }) {
       .notNullable();
     table.string('secret');
     table.string('name').notNullable();
+    // TODO: Handle allowed scopes so that the consent page isn't shown for scopes that have already been allowed.
     table.timestamps(true, true);
   });
-};
+}
 
-/**
- * @param {import('knex').Knex} knex
- */
-exports.down = async function ({ schema }) {
+export async function down({ schema }: Knex) {
   await schema.dropTable('clients');
-};
+}

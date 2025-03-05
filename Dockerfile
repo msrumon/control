@@ -1,25 +1,36 @@
+FROM node:lts-alpine AS build
+
+WORKDIR /root
+
+COPY package.json package-lock.json ./
+
+RUN npm install
+
+COPY . .
+
+RUN npm run build
+
 FROM node:lts-alpine
 
 ENV NODE_ENV=production
 
 WORKDIR /home/node
 
-COPY package.json package-lock.json ./
+COPY --from=build --chown=node:node /root/package.json /root/package-lock.json ./
+COPY --from=build --chown=node:node /root/node_modules ./node_modules
 
-RUN npm install
+RUN npm prune
 
-COPY --chown=node:node ./init.sh ./
-COPY --chown=node:node ./knexfile.js ./
-COPY --chown=node:node ./src ./src
-COPY --chown=node:node ./views ./views
-COPY --chown=node:node ./database ./database
-
-USER node
+COPY --from=build --chown=node:node /root/views ./views
+COPY --from=build --chown=node:node /root/dist .
+COPY --from=build --chown=node:node /root/init.sh ./
 
 RUN chmod u+x ./init.sh
+
+USER node
 
 EXPOSE 2875
 
 ENTRYPOINT ["./init.sh"]
 
-CMD ["npm", "start"]
+CMD ["node", "./src/app.js"]

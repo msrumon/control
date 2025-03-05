@@ -1,33 +1,10 @@
+import type { FastifySchema } from 'fastify';
 import Joi from 'joi';
 
-/**
- * @type {import('fastify').FastifySchema}
- */
-export const getSigninSchema = {
-  querystring: Joi.object({
-    next: Joi.string().uri({ relativeOnly: true, encodeUri: true }).required(),
-  }),
-};
-
-/**
- * @type {import('fastify').FastifySchema}
- */
-export const postSigninSchema = {
-  ...getSigninSchema,
-  body: Joi.object({
-    _csrf: Joi.string().required(),
-    username: Joi.string().required(),
-    password: Joi.string().required(),
-  }),
-};
-
-/**
- * @type {import('fastify').FastifySchema}
- */
-export const getAuthorizeSchema = {
+export const getSchema: FastifySchema = {
   querystring: Joi.object({
     response_type: Joi.string()
-      .custom((value, helpers) => {
+      .custom((value: string, helpers) => {
         const allowedTypes = ['token', 'id_token', 'code'];
         if (
           !allowedTypes.some((type) => value.includes(type)) ||
@@ -45,11 +22,8 @@ export const getAuthorizeSchema = {
   }),
 };
 
-/**
- * @type {import('fastify').FastifySchema}
- */
-export const postAuthorizeSchema = {
-  ...getAuthorizeSchema,
+export const postSchema: FastifySchema = {
+  ...getSchema,
   body: Joi.object({
     _csrf: Joi.string().required(),
     consent: Joi.boolean().truthy('yes').falsy('no').required(),

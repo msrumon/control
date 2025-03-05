@@ -1,6 +1,6 @@
 {
   "name": "control",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Control - An oAuth2 Server",
   "keywords": [
     "control",
@@ -16,28 +16,37 @@
   },
   "license": "MIT",
   "scripts": {
-    "dev": "node --watch ./src/app.mjs",
-    "start": "node ./src/app.mjs",
+    "dev": "tsx watch ./src/app.ts",
+    "check": "tsc --noEmit",
+    "build": "tsc",
+    "start": "node --env-file .env.example ./dist/src/app.js",
     "knex": "knex"
   },
   "dependencies": {
     "@fastify/cookie": "^11.0.2",
-    "@fastify/cors": "^10.0.2",
+    "@fastify/cors": "^11.0.0",
     "@fastify/csrf-protection": "^7.0.2",
     "@fastify/env": "^5.0.2",
     "@fastify/flash": "^6.0.3",
     "@fastify/formbody": "^8.0.2",
+    "@fastify/jwt": "^9.0.4",
     "@fastify/sensible": "^6.0.3",
     "@fastify/session": "^11.1.0",
     "@fastify/view": "^10.0.2",
     "argon2": "^0.41.1",
-    "connect-session-knex": "^5.0.0",
-    "express-session": "^1.18.1",
+    "better-sqlite3": "^11.8.1",
     "fastify": "^5.2.1",
     "handlebars": "^4.7.8",
     "html-minifier-terser": "^7.2.0",
     "joi": "^17.13.3",
-    "knex": "^3.1.0",
-    "pg": "^8.13.1"
+    "knex": "^3.1.0"
+  },
+  "devDependencies": {
+    "@tsconfig/node-lts": "^22.0.1",
+    "@types/html-minifier-terser": "^7.0.2",
+    "@types/node": "^22.13.9",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.8.2"
   }
 }
