@@ -1,7 +1,7 @@
-import type { FastifyPluginAsync } from "fastify";
+import type { FastifyInstance } from 'fastify';
 
-export const routes: FastifyPluginAsync = async (fastify) => {
-    fastify.get('/callback', async function (request, reply) {
-      return await reply.send(request.query);
-    });
-  };
+export async function routes(fastify: FastifyInstance) {
+  fastify.get('/callback', async function (request, reply) {
+    return await reply.send(request.query);
+  });
+}

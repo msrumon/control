@@ -4,11 +4,12 @@ export async function up({ schema }: Knex) {
   await schema.createTable('codes', function (table) {
     table.string('code').notNullable();
     table.uuid('uri_id').references('id').inTable('uris').notNullable();
-    table.string('scope').notNullable();
+    table.uuid('user_id').references('id').inTable('users').notNullable();
+    table.string('scopes').notNullable();
     table.string('state');
     table.datetime('expires_at').notNullable();
     table.timestamps(true, true);
-    table.primary(['code', 'uri_id', 'scope']);
+    table.primary(['code', 'uri_id', 'scopes']);
   });
 }
 

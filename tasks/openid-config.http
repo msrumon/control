@@ -1,0 +1,2 @@
+GET /.well-known/openid-configuration
+Host: 127.0.0.1:2875

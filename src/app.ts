@@ -13,6 +13,7 @@ import Fastify from 'fastify';
 import handlebars from 'handlebars';
 
 import knexConfig from '../knexfile';
+import type { Env } from '../interfaces/env';
 import { argon2Plugin } from './plugins/argon2';
 import { authPlugin } from './plugins/auth';
 import { knexPlugin } from './plugins/knex';
@@ -31,17 +32,17 @@ async function run() {
         schema.validateAsync(input, { context: { fastify } })
   );
 
-  fastify.setErrorHandler(async (error, _request, reply) => {
-    fastify.log.warn(error);
-    const { message, name, statusCode } = error;
-    if (!statusCode) {
-      return await reply.code(500).viewAsync('error', {
-        name: 'ServerError',
-        message: 'Something went wrong.',
-      });
-    }
-    return await reply.code(statusCode).viewAsync('error', { message, name });
-  });
+  // fastify.setErrorHandler(async (error, _request, reply) => {
+  //   fastify.log.warn(error);
+  //   const { message, name, statusCode } = error;
+  //   if (!statusCode) {
+  //     return await reply.code(500).viewAsync('error', {
+  //       name: 'ServerError',
+  //       message: 'Something went wrong.',
+  //     });
+  //   }
+  //   return await reply.code(statusCode).viewAsync('error', { message, name });
+  // });
 
   try {
     await fastify.register(fastifyEnv, {
@@ -56,11 +57,11 @@ async function run() {
       },
     });
     await fastify.register(fastifyCookie, {
-      secret: process.env.COOKIE_SECRET as string,
+      secret: fastify.getEnvs<Env>().COOKIE_SECRET,
     });
     await fastify.register(knexPlugin, { ...knexConfig });
     await fastify.register(fastifySession, {
-      secret: process.env.SESSION_SECRET as string,
+      secret: fastify.getEnvs<Env>().SESSION_SECRET,
       cookie: { httpOnly: true, secure: 'auto' },
     });
     await fastify.register(fastifyCsrfProtection);
@@ -88,9 +89,10 @@ async function run() {
     await fastify.register(fastifyFormbody);
     await fastify.register(fastifyFlash);
     await fastify.register(fastifyJwt, {
-      secret: process.env.JWT_SECRET as string,
-      sign: { iss: 'https://control.msrumon.com' },
-      verify: { allowedIss: 'https://control.msrumon.com' },
+      secret: fastify.getEnvs<Env>().JWT_SECRET,
+      // TODO: Find a way to set and check issuer dynamically.
+      // sign: { iss: 'https://control.msrumon.com' },
+      // verify: { allowedIss: 'https://control.msrumon.com' },
     });
     await fastify.register(fastifySensible);
     await fastify.register(argon2Plugin);

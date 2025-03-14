@@ -1,7 +1,7 @@
 import type { FastifySchema } from 'fastify';
 import Joi from 'joi';
 
-export const getSchema: FastifySchema = {
+export const getSchema = {
   querystring: Joi.object({
     response_type: Joi.string()
       .custom((value: string, helpers) => {
@@ -20,12 +20,12 @@ export const getSchema: FastifySchema = {
     scope: Joi.string().required(),
     state: Joi.string(),
   }),
-};
+} as FastifySchema;
 
-export const postSchema: FastifySchema = {
+export const postSchema = {
   ...getSchema,
   body: Joi.object({
     _csrf: Joi.string().required(),
     consent: Joi.boolean().truthy('yes').falsy('no').required(),
   }),
-};
+} as FastifySchema;

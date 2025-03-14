@@ -1,9 +1,9 @@
-import type { FastifyPluginAsync } from 'fastify';
+import type { FastifyInstance, RouteHandlerMethod } from 'fastify';
 
+import authPrehandler from '../handlers/extras/auth.prehandler';
 import {
   getHandler as getAuthorizeHandler,
   postHandler as postAuthorizeHandler,
-  preHandler as preAuthHandler,
 } from '../handlers/authorize';
 import {
   getHandler as getSigninHandler,
@@ -18,28 +18,27 @@ import {
   postSchema as postSigninSchema,
 } from '../schemas/signin';
 
-export const routes: FastifyPluginAsync = async (fastify) => {
+export async function routes(fastify: FastifyInstance) {
   // fastify.get('/signup');
-
   // fastify.post('/signup');
-
-  fastify.get('/signin', { schema: getSigninSchema }, getSigninHandler);
-
+  fastify.get(
+    '/signin',
+    { schema: getSigninSchema },
+    getSigninHandler
+  );
   fastify.post(
     '/signin',
     { schema: postSigninSchema, preHandler: fastify.csrfProtection },
-    postSigninHandler
+    postSigninHandler as RouteHandlerMethod
   );
-
   fastify.get(
     '/authorize',
-    { schema: getAuthorizeSchema, preHandler: preAuthHandler },
+    { schema: getAuthorizeSchema, preHandler: authPrehandler },
     getAuthorizeHandler
   );
-
   fastify.post(
     '/authorize',
-    { schema: postAuthorizeSchema, preHandler: preAuthHandler },
+    { schema: postAuthorizeSchema, preHandler: authPrehandler },
     postAuthorizeHandler
   );
-};
+}

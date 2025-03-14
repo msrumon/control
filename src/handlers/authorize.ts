@@ -1,55 +1,35 @@
-import type { preHandlerAsyncHookHandler, RouteHandlerMethod } from 'fastify';
+import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 
-import { configureRedirectUrl } from '../utilities/redirect-url';
+import type {
+  GetAuthorizeRoute,
+  PostAuthorizeRoute,
+} from '../../interfaces/routes';
+import { configureRedirectUrl } from '../helpers/redirect-url';
 
-export const preHandler: preHandlerAsyncHookHandler = async (
-  request,
-  reply
-) => {
-  const { user: exUser } = request.session;
-  if (!exUser) {
-    return await reply.redirect(
-      `/signin?next=${encodeURIComponent(request.url)}`
-    );
-  }
-
-  const { client_id: clientId, redirect_uri: redirectUri } =
-    request.query as Record<string, string>;
-
-  const client = await request.server
-    .knex('clients')
-    .where('id', clientId)
-    .first();
-  if (!client) {
-    return await reply.notFound('Client not found.');
-  }
-
-  const uri = await request.server
-    .knex('uris')
-    .where('client_id', client.id)
-    .first();
-  if (uri.link !== decodeURIComponent(redirectUri)) {
-    return await reply.badRequest('URI mismatched.');
-  }
-
-  request.client = client;
-  request.uri = uri;
-};
-
-export const getHandler: RouteHandlerMethod = async (request, reply) => {
-  const { scope } = request.query as Record<string, string>;
+export async function getHandler(
+  this: FastifyInstance,
+  request: FastifyRequest<GetAuthorizeRoute>,
+  reply: FastifyReply
+) {
+  const { scope } = request.query;
   if (scope === 'openid') {
-    return await reply.redirect(await configureRedirectUrl(request));
+    const url = await configureRedirectUrl(request);
+    return await reply.redirect(url.href);
   }
 
   return await reply.viewAsync('consent', {
     _csrf: reply.generateCsrf(),
     client: request.client,
-    scopes: scope.split(' ').map((scope) => request.server.scopes[scope]),
+    scopes: this.scope2scopes(scope),
   });
-};
+}
 
-export const postHandler: RouteHandlerMethod = async (request, reply) => {
-  const { consent } = request.body as Record<string, 'no' | 'yes'>;
-  return await reply.redirect(await configureRedirectUrl(request, consent));
-};
+export async function postHandler(
+  this: FastifyInstance,
+  request: FastifyRequest<PostAuthorizeRoute>,
+  reply: FastifyReply
+) {
+  const { consent } = request.body;
+  const url = await configureRedirectUrl(request, consent);
+  return await reply.redirect(url.href);
+}

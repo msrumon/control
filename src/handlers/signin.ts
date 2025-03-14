@@ -1,7 +1,14 @@
-import type { RouteHandlerMethod } from 'fastify';
+import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 
-export const getHandler: RouteHandlerMethod = async (request, reply) => {
-  const { next } = request.query as Record<string, string>;
+import type { User } from '../../interfaces/models';
+import type { GetSigninRoute, PostSigninRoute } from '../../interfaces/routes';
+
+export async function getHandler(
+  this: FastifyInstance,
+  request: FastifyRequest<GetSigninRoute>,
+  reply: FastifyReply
+) {
+  const { next } = request.query;
 
   const { user: exUser } = request.session;
   if (exUser) {
@@ -12,20 +19,20 @@ export const getHandler: RouteHandlerMethod = async (request, reply) => {
     _csrf: reply.generateCsrf(),
     error: reply.flash('error'),
   });
-};
+}
 
-/**
- * @type {import('fastify').RouteHandlerMethod}
- */
-export const postHandler: RouteHandlerMethod = async (request, reply) => {
-  const { next } = request.query as Record<string, string>;
+export async function postHandler(
+  this: FastifyInstance,
+  request: FastifyRequest<PostSigninRoute>,
+  reply: FastifyReply
+) {
+  const { next } = request.query;
 
   const { user: exUser } = request.session;
   if (!exUser) {
-    const { username, password } = request.body as Record<string, string>;
+    const { username, password } = request.body;
 
-    const dbUser = await request.server
-      .knex('users')
+    const dbUser = await this.knex<User>('users')
       .where('name', username)
       .first();
     if (!dbUser) {
@@ -33,7 +40,7 @@ export const postHandler: RouteHandlerMethod = async (request, reply) => {
       return await reply.redirect(request.url);
     }
 
-    if (!(await request.server.argon2.verify(dbUser.password, password))) {
+    if (!(await this.argon2.verify(dbUser.password, password))) {
       request.flash('error', 'Password does not match.');
       return await reply.redirect(request.url);
     }
@@ -42,4 +49,4 @@ export const postHandler: RouteHandlerMethod = async (request, reply) => {
   }
 
   return await reply.redirect(decodeURIComponent(next));
-};
+}

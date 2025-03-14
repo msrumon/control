@@ -1,49 +1,32 @@
-import { FastifyPluginAsync } from 'fastify';
 import fastifyPlugin from 'fastify-plugin';
+
+import emailScope from '../logic/email.scope';
+import profileScope from '../logic/profile.scope';
+
+type Scopes = {
+  [key: string]: {
+    id: string;
+    description: string;
+    getData: (id: string) => Promise<Record<string, string> | undefined>;
+  };
+};
 
 declare module 'fastify' {
   interface FastifyInstance {
-    scopes: {
-      [key: string]: {
-        id: string;
-        description: string;
-        getData: (id: string) => Promise<Record<string, string>>;
-      };
-    };
+    scopes: Scopes;
+    scope2scopes: (scope: string) => Array<Scopes[keyof Scopes]>;
   }
 }
 
 export const scopesPlugin = fastifyPlugin(async (fastify) => {
   fastify.decorate('scopes', {
-    email: {
-      get id() {
-        return 'email';
-      },
-      get description() {
-        return 'Access to your email';
-      },
-      async getData(id) {
-        return await fastify
-          .knex('users')
-          .select('email')
-          .where('id', id)
-          .first();
-      },
-    },
-    profile: {
-      get id() {
-        return 'profile';
-      },
-      get description() {
-        return 'Access to your profile';
-      },
-      async getData(id) {
-        return await fastify
-          .knex('users')
-          .select('name', 'email')
-          .where('id', id)
-          .first();
-      },
-    },
+    email: emailScope(fastify),
+    profile: profileScope(fastify),
   });
-}) as FastifyPluginAsync;
+  fastify.decorate('scope2scopes', (scope: string) =>
+    scope
+      .split(' ')
+      .filter((s) => s in fastify.scopes)
+      .map((s) => fastify.scopes[s])
+  );
+});
