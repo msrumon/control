@@ -35,7 +35,7 @@
     "@fastify/view": "^10.0.2",
     "argon2": "^0.41.1",
     "better-sqlite3": "^11.8.1",
-    "fastify": "^5.2.1",
+    "fastify": "^5.7.3",
     "handlebars": "^4.7.8",
     "html-minifier-terser": "^7.2.0",
     "joi": "^17.13.3",
